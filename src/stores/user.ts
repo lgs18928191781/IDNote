@@ -4,6 +4,7 @@ import { type UserInfo, getUserInfoByAddress } from '@/api/man'
 import { useConnectionStore } from '@/stores/connection'
 import { toast } from '@/utils/toast'
 import { useLayoutStore } from './layout'
+import { useRootStore } from './root'
 
 export const useUserStore = defineStore('user', {
   state: () => {
@@ -39,7 +40,8 @@ export const useUserStore = defineStore('user', {
     has: (state) => !!state.last,
     isAuthorized: (state) => {
       const connectedStore = useConnectionStore()
-      return !!(state.last.address && state.last.metaid && connectedStore.last.status == 'connected')
+      const rootStore=useRootStore()
+      return  rootStore.isWebView || !!(state.last.address && state.last.metaid && connectedStore.last.status == 'connected')
     },
 
   },

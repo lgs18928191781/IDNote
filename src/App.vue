@@ -21,7 +21,7 @@
 
       <!-- 悬浮的草稿按钮 -->
       <button
-        v-if="userStore.isAuthorized"
+        v-if="rootStore.isWebView || userStore.isAuthorized"
         @click="router.push('/draft')"
         class="floating-draft-btn"
         title="草稿箱"

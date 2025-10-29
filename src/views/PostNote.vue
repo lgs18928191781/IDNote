@@ -117,13 +117,14 @@ import UserAvatar from '@/components/UserAvatar/UserAvatar.vue'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import imageCompression from 'browser-image-compression'
+import { useRootStore } from '@/stores/root'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const { showToast } = useToast()
 const { createSimpleNote, createFile } = useCreateProtocols()
-
+const rootStore=useRootStore()
 // 编辑器实例
 let vditor: Vditor | null = null
 
