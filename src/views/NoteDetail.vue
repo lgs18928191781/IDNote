@@ -163,7 +163,7 @@ const copyNoteId = async () => {
   }
 
   try {
-    await navigator.clipboard.writeText(note.value.id)
+    await navigator.clipboard.writeText(note.value.id.slice(0,-2))
     showToast('TXID 已复制到剪贴板', 'success')
   } catch (err) {
     // 如果 clipboard API 不可用，使用备用方案
