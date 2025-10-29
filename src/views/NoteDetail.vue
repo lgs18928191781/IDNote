@@ -104,7 +104,7 @@ const noteUserInfo=ref<UserInfo | null>(null)
 const getCoverUrl = (coverImg: string): string => {
   if (coverImg.startsWith('metafile://')) {
     const pinId = coverImg.replace('metafile://', '')
-    return `https://man.metaid.io/pin/${pinId}`
+    return `https://man.metaid.io/content/${pinId}`
   }
   return coverImg
 }
@@ -113,7 +113,7 @@ const getCoverUrl = (coverImg: string): string => {
 const getAttachmentUrl = (attachment: string): string => {
   if (attachment.startsWith('metafile://')) {
     const pinId = attachment.replace('metafile://', '')
-    return `https://man.metaid.io/pin/${pinId}`
+    return `https://man.metaid.io/content/${pinId}`
   }
   return attachment
 }
