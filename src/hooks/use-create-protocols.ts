@@ -102,10 +102,43 @@ async function createPayLike(metaidData:Omit<MetaidData, 'revealAddr'>,options:C
         const result = await buildTransaction({
         path: metaidData.path,
         body: JSON.stringify(metaidData.body),
-     
+
         })
 
         console.log('createPayLike result', result)
+        return result
+}
+
+async function createSimpleNote(metaidData:Omit<MetaidData, 'revealAddr'>,options:CreatePinOptions = {}) {
+    registerProtocolRule(`${AddressHost}:/protocols/simplenote`, {
+        pattern: new RegExp(`${AddressHost ? AddressHost.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : ''}:/protocols/simplenote`, 'i'),
+        handler: async (metaidData) => {
+        console.log('📝 [SimpleNote] Processing simplenote protocol')
+        return await createPin({
+        operation: metaidData.operation || 'create',
+        body: metaidData.body,
+        path: metaidData.path || `${AddressHost}:/protocols/simplenote`,
+        contentType: metaidData.contentType || 'application/json',
+        encryption: metaidData.encryption || '0',
+        version: metaidData.version || '1.0.0',
+        encoding: metaidData.encoding || 'utf-8'
+        }, metaidData.options || {})
+        },
+        description: '简单笔记协议处理',
+        defaultOptions: {
+        chain:options.chain || 'mvc',
+        network:options.network || 'mainnet',
+        signMessage: 'Create Simple Note'
+        }
+        })
+
+        const result = await buildTransaction({
+        path: metaidData.path,
+        body: JSON.stringify(metaidData.body),
+        contentType:metaidData.contentType
+        })
+
+        console.log('createSimpleNote result', result)
         return result
 }
 
@@ -115,7 +148,8 @@ async function createPayLike(metaidData:Omit<MetaidData, 'revealAddr'>,options:C
         return {
             createBuzz,
             createFile,
-            createPayLike
+            createPayLike,
+            createSimpleNote
         }
 
         })

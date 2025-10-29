@@ -5,13 +5,17 @@
 
 
 html {
+  overflow-x: hidden; // 防止横向滚动条
+  width: 100%;
 
   body {
     // background: $bgColor;
     font-size: 16px;
     font-family: "ABC Ginto Normal", Whitney, 'SF Pro', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
       'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
-
+    overflow-x: hidden; // 防止横向滚动条
+    width: 100%;
+    max-width: 100%; // 确保不会超出视口
 
     color: var(--themeTextColor);
     background: var(--themeBgThreeColor);
@@ -238,7 +242,7 @@ pre {
   // 只有下阴影的情况
  
   color: #fff;
-  border: var(--standard-border-width) solid var(--border-color);
+  border: var(--standard-border-width) solid #149dd3;
   //box-shadow: var(--right-offset) var(--standard-offset) 0 var(--border-color);
   border-radius: var(--rounded);
   transition-property: all;

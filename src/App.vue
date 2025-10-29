@@ -1,10 +1,33 @@
 <template>
   <div>
-    <div class=" flex flex-row  items-center justify-end bg-[#fff] p-3">
+    <div class="header-container flex flex-row  items-center justify-end bg-[#fff] p-3">
+         <div class="header-actions">
+
+          <button
+            v-if="userStore.isAuthorized"
+            @click="router.push('/post')"
+            class="write-btn mr-5"
+          >
+            Write
+          </button>
+        </div>
          <LoginedUserOperateVue />
     </div>
       <ConnectWalletModalVue />
-     
+      <div class="app-container flex items-center justify-center">
+        <router-view />
+      </div>
+      
+
+      <!-- 悬浮的草稿按钮 -->
+      <button
+        v-if="userStore.isAuthorized"
+        @click="router.push('/draft')"
+        class="floating-draft-btn"
+        title="草稿箱"
+      >
+        Draft
+      </button>
   </div>
 
 
@@ -25,7 +48,9 @@ import { useCredentialsStore } from './stores/credentials'
 import { type Network, useNetworkStore } from '@/stores/network'
 import {completeReload, sleep} from '@/utils/util'
 import { useConnectionModal } from './hooks/use-connection-modal'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const accountInterval=ref()
 const rootStore=useRootStore()
 const connectionStore=useConnectionStore()
@@ -72,9 +97,11 @@ isNetworkChanging.value = false
 
 const metaletAccountsChangedHandler = () => {
 try {
+  
 if (useConnectionStore().last.wallet !== 'metalet') return
 if(rootStore.isWebView) return
 connectionStore.disconnect()
+
 showToast('Metalet 账户已变更。正在刷新页面...','warning')
 sleep().then(()=>completeReload())
 
@@ -156,10 +183,11 @@ onMounted(async () => {
     try {
        rootStore.checkWebViewBridge()
        if(rootStore.isWebView) return
+       
       if (window.metaidwallet && connectionStore.last.status == 'connected' && userStore.isAuthorized) {
         const res = await window.metaidwallet.getAddress()
 
-        if ((res as any)?.status === 'not-connected' || userStore.last?.address !== res.address) {
+        if ((res as any)?.status === 'not-connected' || userStore.last?.address !== res) {
           connectionStore.disconnect()
           showToast('Metalet 账户已变更','warning')
         }
@@ -266,5 +294,70 @@ onBeforeUnmount(async () => {
 
 </script>
 <style lang='scss' scoped>
+.header-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.app-container{
+  width: 100%;
+  margin-top: 60px; // 为固定的 header 留出空间
+  overflow-x: hidden; // 防止横向滚动
+}
+
+ .header-actions {
+    display: flex;
+    gap: 1rem;
+    font-size: 14px;
+
+    .write-btn {
+      font-weight: 600;
+       padding: 5px 30px;
+      background: #149dd3;
+      color: #fff;
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #1189bd;
+      }
+    }
+  }
+
+  .floating-draft-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    font-weight: 600;
+    padding: 10px 20px;
+    background: #fff;
+    color: #149dd3;
+    border: 2px solid #149dd3;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(20, 157, 211, 0.3);
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #149dd3;
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(20, 157, 211, 0.4);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
 
 </style>
