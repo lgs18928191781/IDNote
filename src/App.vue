@@ -335,10 +335,10 @@ onBeforeUnmount(async () => {
   .floating-draft-btn {
     position: fixed;
     bottom: 30px;
-    right: 30px;
+    right: 10px;
     z-index: 1000;
     font-weight: 600;
-    padding: 10px 20px;
+    padding: 10px 16px;
     background: #fff;
     color: #149dd3;
     border: 2px solid #149dd3;
