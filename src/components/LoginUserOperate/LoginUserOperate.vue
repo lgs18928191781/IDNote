@@ -9,7 +9,7 @@
   </template>
 
   <template v-else>
-    <div class="user-warp flex flex-align-center" v-if="userStore.isAuthorized">
+    <div class="user-warp flex flex-align-center" v-if="rootStore.isWebView || userStore.isAuthorized">
      
       <!-- 👤 头像 -->
       <UserAvatar

@@ -603,17 +603,31 @@ onMounted(() => {
 
 // Small mobile breakpoint
 @media (max-width: 480px) {
+  .main-content {
+  
+  padding: 0 10px;
+   
+  box-sizing: border-box;
+}
+
+
   .header {
     .title-section {
       .main-title {
-        font-size: 18px;
+       
       }
 
       .subtitle {
-        font-size: 14px;
+      
       }
     }
   }
+
+  .notes-list {
+
+  max-width: 95%;
+  width: 95%;
+}
 
   .note-card {
     padding: 0.75rem;

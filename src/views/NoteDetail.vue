@@ -519,7 +519,7 @@ onMounted(() => {
       margin-bottom: 0.75rem;
       padding: 0.375rem 0.75rem;
       font-size: 0.8125rem;
-
+      padding-left: 0;
       svg {
         width: 18px;
         height: 18px;
