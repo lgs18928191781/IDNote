@@ -14,12 +14,10 @@
     <!-- Content -->
     <main class="main-content flex items-center flex-col justify-center">
       <!-- 未连接提示 -->
-      <div v-if="!userStore.isAuthorized" class="not-connected">
-        <p>请先连接钱包以查看您的笔记</p>
-      </div>
+     
 
       <!-- 加载中 -->
-      <div v-else-if="loading" class="loading">
+      <div v-if="loading" class="loading">
         <p>加载中...</p>
       </div>
 
@@ -98,7 +96,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { getAddressPinList, type PinInfo } from '@/api/ManV2'
+import { getPinListByPath, type PinInfo } from '@/api/ManV2'
 import { useToast } from '@/components/Toast/useToast'
 import { getUserInfoByAddress } from "@/api/man";
 const router = useRouter()
@@ -120,7 +118,7 @@ const totalPages = computed(() => {
 // 获取笔记标题
 const getNoteTitle = (note: PinInfo): string => {
   try {
-    if (note.content) {
+    if (note.contentSummary) {
       const data = JSON.parse(note.contentSummary)
       return data.title || '无标题'
     }
@@ -133,7 +131,7 @@ const getNoteTitle = (note: PinInfo): string => {
 // 获取笔记封面
 const getNoteCover = (note: PinInfo): string => {
   try {
-    if (note.content) {
+    if (note.contentSummary) {
       const data = JSON.parse(note.contentSummary)
       if (data.coverImg && data.coverImg.startsWith('metafile://')) {
         // 处理 metafile:// 链接
@@ -162,25 +160,24 @@ const formatDate = (timestamp: number): string => {
 
 // 加载笔记列表
 const loadNotes = async (page: number = 1) => {
-  if (!userStore.isAuthorized) {
-    notes.value = []
-    total.value = 0
-    currentPage.value = 1
-    return
-  }
+  // if (!userStore.isAuthorized) {
+  //   notes.value = []
+  //   total.value = 0
+  //   currentPage.value = 1
+  //   return
+  // }
 
   loading.value = true
   try {
     const cursor = (page - 1) * pageSize
-    const response = await getAddressPinList({
-      address:userStore.last.address,
+    const response = await getPinListByPath({
       path: '/protocols/simplenote',
       size: pageSize,
       cursor: cursor
     })
 
     for(let item of response.list){
-     const userInfo= userStore.last
+     const userInfo= await getUserInfoByAddress(item.address)
       item.userInfo=userInfo
     }
 
@@ -243,18 +240,16 @@ const getPageNumbers = () => {
 }
 
 // 监听用户登录状态
-watch(() => userStore.isAuthorized, (newVal) => {
-  if (newVal) {
-    loadNotes()
-  } else {
-    notes.value = []
-  }
-})
+// watch(() => userStore.isAuthorized, (newVal) => {
+//   if (newVal) {
+//     loadNotes()
+//   } else {
+//     notes.value = []
+//   }
+// })
 
 onMounted(() => {
-  if (userStore.isAuthorized) {
-    loadNotes()
-  }
+  loadNotes()
 })
 </script>
 
