@@ -4,7 +4,7 @@ import {type UserInfo} from '@/api/man'
 const MAN_V2_BASE_URL = import.meta.env.VITE_MAN_V2_API || 'https://manapi.metaid.io'
 
 
-const manV2ApiInstance = new HttpRequest(MAN_V2_BASE_URL, {
+const manV2ApiInstance = new HttpRequest(`${MAN_V2_BASE_URL}`, {
  	
   responseHandler: (response) => {
     return new Promise((resolve, reject) => {

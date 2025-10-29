@@ -12,7 +12,7 @@
     </header>
 
     <!-- Content -->
-    <main class="main-content flex items-center justify-center">
+    <main class="main-content flex items-center flex-col justify-center">
       <!-- 未连接提示 -->
       <div v-if="!userStore.isAuthorized" class="not-connected">
         <p>请先连接钱包以查看您的笔记</p>
@@ -59,12 +59,43 @@
          Write Note
         </button>
       </div>
+
+      <!-- 分页器 -->
+      <div v-if="notes.length > 0 && totalPages > 1" class="pagination">
+        <button
+          class="page-btn"
+          :disabled="currentPage === 1"
+          @click="handlePageChange(currentPage - 1)"
+        >
+          上一页
+        </button>
+
+        <div class="page-numbers">
+          <button
+            v-for="page in getPageNumbers()"
+            :key="page"
+            :class="['page-number', { active: page === currentPage, ellipsis: page === -1 }]"
+            :disabled="page === -1"
+            @click="page !== -1 && handlePageChange(page)"
+          >
+            {{ page === -1 ? '...' : page }}
+          </button>
+        </div>
+
+        <button
+          class="page-btn"
+          :disabled="currentPage === totalPages"
+          @click="handlePageChange(currentPage + 1)"
+        >
+          下一页
+        </button>
+      </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { getAddressPinList, type PinInfo } from '@/api/ManV2'
@@ -76,6 +107,15 @@ const { showToast } = useToast()
 
 const notes = ref<PinInfo[]>([])
 const loading = ref(false)
+const total = ref(0)
+const currentPage = ref(1)
+const pageSize = 20
+
+// 计算总页数
+const totalPages = computed(() => {
+  if (total.value === 0 || notes.value.length === 0) return 0
+  return Math.ceil(total.value / pageSize)
+})
 
 // 获取笔记标题
 const getNoteTitle = (note: PinInfo): string => {
@@ -98,7 +138,7 @@ const getNoteCover = (note: PinInfo): string => {
       if (data.coverImg && data.coverImg.startsWith('metafile://')) {
         // 处理 metafile:// 链接
         const pinId = data.coverImg.replace('metafile://', '')
-        return `https://man.metaid.io/pin/${pinId}`
+        return `https://man.metaid.io/content/${pinId}`
       }
       return data.coverImg || ''
     }
@@ -121,33 +161,85 @@ const formatDate = (timestamp: number): string => {
 }
 
 // 加载笔记列表
-const loadNotes = async () => {
+const loadNotes = async (page: number = 1) => {
   if (!userStore.isAuthorized) {
     notes.value = []
+    total.value = 0
+    currentPage.value = 1
     return
   }
 
   loading.value = true
   try {
+    const cursor = (page - 1) * pageSize
     const response = await getAddressPinList({
       address:userStore.last.address,
       path: '/protocols/simplenote',
-      size: 20
+      size: pageSize,
+      cursor: cursor
     })
 
     for(let item of response.list){
-     const userInfo= await getUserInfoByAddress(item.address)
-      item.userInfo=userInfo 
+     const userInfo= userStore.last
+      item.userInfo=userInfo
     }
 
     notes.value = response.list || []
-    
+    total.value = response.total || 0
+    currentPage.value = page
+
   } catch (error) {
     showToast('加载笔记失败', 'error')
     console.error('Failed to load notes:', error)
   } finally {
     loading.value = false
   }
+}
+
+// 切换页码
+const handlePageChange = (page: number) => {
+  if (page < 1 || page > totalPages.value || page === currentPage.value) {
+    return
+  }
+  loadNotes(page)
+  // 滚动到顶部
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+// 获取要显示的页码数组
+const getPageNumbers = () => {
+  const total = totalPages.value
+  const current = currentPage.value
+  const pages: number[] = []
+
+  if (total <= 7) {
+    // 如果总页数小于等于7，显示所有页码
+    for (let i = 1; i <= total; i++) {
+      pages.push(i)
+    }
+  } else {
+    // 总是显示第一页
+    pages.push(1)
+
+    if (current <= 3) {
+      // 当前页在前面时
+      pages.push(2, 3, 4, 5)
+      pages.push(-1) // 省略号
+      pages.push(total)
+    } else if (current >= total - 2) {
+      // 当前页在后面时
+      pages.push(-1) // 省略号
+      pages.push(total - 4, total - 3, total - 2, total - 1, total)
+    } else {
+      // 当前页在中间时
+      pages.push(-1) // 省略号
+      pages.push(current - 1, current, current + 1)
+      pages.push(-1) // 省略号
+      pages.push(total)
+    }
+  }
+
+  return pages
 }
 
 // 监听用户登录状态
@@ -221,6 +313,7 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 40px;
+   
   box-sizing: border-box;
 }
 
@@ -255,7 +348,7 @@ onMounted(() => {
 .notes-list {
   display: flex;
   flex-direction: column;
-  
+ 
   gap: 1rem;
   max-width: 500px;
   width: 500px;
@@ -335,6 +428,83 @@ onMounted(() => {
   }
 }
 
+// 分页器样式
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+
+  .page-btn {
+    padding: 0.5rem 1rem;
+    background: #fff;
+    color: #149dd3;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      background: #f5f5f5;
+      border-color: #149dd3;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .page-numbers {
+    display: flex;
+    gap: 0.25rem;
+
+    .page-number {
+      min-width: 36px;
+      height: 36px;
+      padding: 0.5rem;
+      background: #fff;
+      color: #666;
+      border: 1px solid #e5e5e5;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+
+      &:hover:not(:disabled):not(.active) {
+        background: #f5f5f5;
+        border-color: #149dd3;
+      }
+
+      &.active {
+        background: #149dd3;
+        color: #fff;
+        border-color: #149dd3;
+        font-weight: 500;
+      }
+
+      &.ellipsis {
+        cursor: default;
+        border-color: transparent;
+        background: transparent;
+
+        &:hover {
+          background: transparent;
+          border-color: transparent;
+        }
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
 // Tablet breakpoint
 @media (max-width: 1024px) {
   .header {
@@ -364,7 +534,7 @@ onMounted(() => {
 // Mobile breakpoint
 @media (max-width: 768px) {
   .header {
-   
+
     width: 100%;
 
     .header-content {
@@ -387,6 +557,7 @@ onMounted(() => {
 
   .main-content {
     width: 100%;
+
   }
 
   .note-card {
@@ -412,6 +583,24 @@ onMounted(() => {
       .avatar {
         width: 28px;
         height: 28px;
+      }
+    }
+  }
+
+  .pagination {
+    gap: 0.25rem;
+
+    .page-btn {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .page-numbers {
+      .page-number {
+        min-width: 32px;
+        height: 32px;
+        padding: 0.375rem;
+        font-size: 0.75rem;
       }
     }
   }
@@ -455,6 +644,28 @@ onMounted(() => {
       .avatar {
         width: 24px;
         height: 24px;
+      }
+    }
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.5rem 0;
+
+    .page-btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.6875rem;
+    }
+
+    .page-numbers {
+      flex-wrap: wrap;
+
+      .page-number {
+        min-width: 28px;
+        height: 28px;
+        padding: 0.25rem;
+        font-size: 0.6875rem;
       }
     }
   }
