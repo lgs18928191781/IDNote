@@ -4,7 +4,7 @@
          <div class="header-actions">
 
           <button
-            v-if="userStore.isAuthorized"
+            v-if="rootStore.isWebView || userStore.isAuthorized"
             @click="router.push('/post')"
             class="write-btn mr-5"
           >
