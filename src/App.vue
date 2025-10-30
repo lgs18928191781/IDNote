@@ -65,25 +65,7 @@ const {  closeConnectionModal } =useConnectionModal()
 
 
 
-async function connectMetalet() {
-  showToast('调用用户登录','info')
-  try {
-    const connection = await connectionStore.connect('metalet').catch((err) => {
-      showToast(err.message,'error')
-   
-  })
-  showToast(connection?.status,'info')
-    if (connection?.status === 'connected') {
-    await credentialsStore.login()
 
-  }
-  } catch (error) {
-    showToast(error.message,'error')
-  }
-
-    
-
-}
 
 function handleNetworkChanged(network: Network) {
 isNetworkChanging.value = true
@@ -172,7 +154,25 @@ console.error('Error in Logout handler:', error)
 }
 
 
+async function connectMetalet() {
+ 
+  try {
+    const connection = await connectionStore.connect('metalet').catch((err) => {
+      showToast(err.message,'error')
+   
+  })
+ 
+    if (connection?.status === 'connected') {
+    await credentialsStore.login()
 
+  }
+  } catch (error) {
+    showToast(error.message,'error')
+  }
+
+    
+
+}
 
 
 
