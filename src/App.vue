@@ -66,12 +66,13 @@ const {  closeConnectionModal } =useConnectionModal()
 
 
 async function connectMetalet() {
-
+  showToast('调用用户登录','info')
   try {
     const connection = await connectionStore.connect('metalet').catch((err) => {
       showToast(err.message,'error')
    
   })
+  showToast(connection?.status,'info')
     if (connection?.status === 'connected') {
     await credentialsStore.login()
 
@@ -125,6 +126,7 @@ const appLoginSuccessHandler= async (data: any) => {
 try {
 
 if (!userStore.isAuthorized) {
+    showToast('检测到没有用户信息','error')
 await connectMetalet()
 
 

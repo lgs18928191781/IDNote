@@ -40,8 +40,8 @@ export const useUserStore = defineStore('user', {
     has: (state) => !!state.last,
     isAuthorized: (state) => {
       const connectedStore = useConnectionStore()
-      const rootStore=useRootStore()
-      return  rootStore.isWebView || !!(state.last.address && state.last.metaid && connectedStore.last.status == 'connected')
+   
+      return !!(state.last.address && state.last.metaid && connectedStore.last.status == 'connected')
     },
 
   },
