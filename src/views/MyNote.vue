@@ -185,7 +185,7 @@ const handleBackToHome = () => {
 
 // 加载笔记列表
 const loadNotes = async (page: number = 1) => {
-  if (!userStore.last?.address || !rootStore.isWebView) {
+  if (!userStore.isAuthorized) {
     showToast('Please login first', 'error')
     return
   }
