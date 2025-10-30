@@ -110,7 +110,7 @@
           </MenuItem>
 
              <!-- Logout Item -->
-          <MenuItem v-slot="{ active }" >
+          <MenuItem v-slot="{ active }" v-if="!rootStore.isWebView" >
             <button
               :class="[
                 active ? 'bg-red-50 dark:bg-red-900/20' : '',
