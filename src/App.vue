@@ -161,7 +161,7 @@ async function connectMetalet() {
       showToast(err.message,'error')
    
   })
-    showToast(connection,'success')
+   
     if (connection?.status === 'connected') {
     await credentialsStore.login()
 

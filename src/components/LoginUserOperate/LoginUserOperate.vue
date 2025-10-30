@@ -1,10 +1,10 @@
 <template>
 
-  <template v-if="!connectionStore.connected  && !rootStore.isWebView">
+  <template v-if="!connectionStore.connected">
     <a class="main-border border-[#149ddc] bg-[#149dd3] connect-wallet" @click="openConnectionModal">Connect Wallet</a>
   </template>
 
-  <template v-else-if="!credentialsStore.get  && !rootStore.isWebView">
+  <template v-else-if="!credentialsStore.get ">
     <a class="main-border border-[#149ddc] bg-[#149dd3] connect-wallet" @click="credentialsStore.login()">Authorize</a>
   </template>
 
@@ -110,7 +110,7 @@
           </MenuItem>
 
              <!-- Logout Item -->
-          <MenuItem v-slot="{ active }" v-if="!rootStore.isWebView">
+          <MenuItem v-slot="{ active }" >
             <button
               :class="[
                 active ? 'bg-red-50 dark:bg-red-900/20' : '',
