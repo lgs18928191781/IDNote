@@ -204,6 +204,7 @@ onMounted(async () => {
 
 
     if (!userStore.isAuthorized) {
+      showToast("进来了",'info')
       if(rootStore.isWebView){
          await connectMetalet()
         }
