@@ -106,11 +106,11 @@ handleNetworkChanged(network)
 }
 
       const appLoginSuccessHandler= async (data: any) => {
-      showToast('有没有走调用用户信息','info')
+    
       try {
 
       if (!userStore.isAuthorized) {
-      showToast('检测到没有用户信息','error')
+    
       await connectMetalet()
 
 
@@ -161,7 +161,7 @@ async function connectMetalet() {
       showToast(err.message,'error')
    
   })
- 
+    showToast(connection,'success')
     if (connection?.status === 'connected') {
     await credentialsStore.login()
 
@@ -209,10 +209,10 @@ onMounted(async () => {
 
 
   const checkMetalet =  () => {
-    showToast('进来初始化app方法1','info')
+    
     rootStore.checkWebViewBridge()
     if (window.metaidwallet) {
-       showToast('进来初始化app方法2','info')
+      
       try {
           
         ;(window.metaidwallet as any)?.on('accountsChanged',metaletAccountsChangedHandler)
