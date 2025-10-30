@@ -186,6 +186,14 @@ onMounted(async () => {
       accountInterval.value = setInterval(async () => {
     try {
        rootStore.checkWebViewBridge()
+
+        if (!userStore.isAuthorized) {
+        showToast("进来了",'info')
+        if(rootStore.isWebView){
+        await connectMetalet()
+        }
+        }
+
        if(rootStore.isWebView) return
        
       if (window.metaidwallet && connectionStore.last.status == 'connected' && userStore.isAuthorized) {
@@ -203,12 +211,7 @@ onMounted(async () => {
 
 
 
-    if (!userStore.isAuthorized) {
-      showToast("进来了",'info')
-      if(rootStore.isWebView){
-         await connectMetalet()
-        }
-      }
+  
   
 
 
