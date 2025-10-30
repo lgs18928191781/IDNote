@@ -207,7 +207,7 @@ onMounted(async () => {
     } catch (error) {
       console.error('Error checking account status:', error)
     }
-  }, 5 * 1000)
+  }, 3 * 1000)
 
 
 
