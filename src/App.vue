@@ -182,8 +182,8 @@ onMounted(async () => {
   let retryCount = 0
   let timeoutId: NodeJS.Timeout | undefined
   //document.addEventListener('visibilitychange', handleVisibilityChange);
- 
-      accountInterval.value = setInterval(async () => {
+  
+  accountInterval.value = setInterval(async () => {
     try {
        rootStore.checkWebViewBridge()
 
@@ -207,7 +207,7 @@ onMounted(async () => {
     } catch (error) {
       console.error('Error checking account status:', error)
     }
-  }, 3 * 1000)
+  }, 2 * 1000)
 
 
 
