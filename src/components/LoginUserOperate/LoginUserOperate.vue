@@ -9,19 +9,49 @@
   </template>
 
   <template v-else>
-    <div class="user-warp flex flex-align-center" v-if=" userStore.isAuthorized">
-     
-      <!-- 👤 头像 -->
-      <UserAvatar
-        :image="userStore.last!.avatar"
-        :meta-id="userStore.last!.metaid"
-        :name="userStore.last.name"
-        class="user-warp-item  overflow-hidden"
-        :meta-name="''"
-        :disabled="true"
-      />
-     
-    </div>
+    <!-- 用户头像菜单 -->
+    <Menu as="div" class="relative" v-if="userStore.isAuthorized">
+      <MenuButton class="user-warp flex flex-align-center">
+        <!-- 👤 头像 -->
+        <UserAvatar
+          :image="userStore.last!.avatar"
+          :meta-id="userStore.last!.metaid"
+          :name="userStore.last.name"
+          class="user-warp-item overflow-hidden cursor-pointer"
+          :meta-name="''"
+          :disabled="true"
+        />
+      </MenuButton>
+
+      <transition
+        enter-active-class="transition duration-100 ease-out"
+        enter-from-class="transform scale-95 opacity-0"
+        enter-to-class="transform scale-100 opacity-100"
+        leave-active-class="transition duration-75 ease-in"
+        leave-from-class="transform scale-100 opacity-100"
+        leave-to-class="transform scale-95 opacity-0"
+      >
+        <MenuItems class="absolute right-0 mt-2 w-48 origin-top-right rounded-xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+          <div class="p-2">
+            <!-- My Note Item -->
+            <MenuItem v-slot="{ active }">
+              <button
+                :class="[
+                  active ? 'bg-gray-100 dark:bg-gray-700' : '',
+                  'w-full rounded-lg p-3 text-left transition-colors flex items-center'
+                ]"
+                @click="handleMyNoteClick"
+              >
+                <svg class="w-5 h-5 mr-3 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span class="font-medium text-gray-900 dark:text-white">My Note</span>
+              </button>
+            </MenuItem>
+          </div>
+        </MenuItems>
+      </transition>
+    </Menu>
   </template>
 
   <!-- 更多操作 - 使用 Headless UI Menu -->
@@ -123,6 +153,7 @@ import { useUserStore } from '@/stores/user'
 import { useChainStore } from '@/stores/chain'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import { computed, ref, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 
 import FeeModal from '@/components/FeeModal/FeeModal.vue'
 
@@ -138,6 +169,7 @@ import ProfileEditModal from '@/components/ProfileEditModal/ProfileEditeModal.vu
 
 const { openConnectionModal } = useConnectionModal()
 
+const router = useRouter()
 const connectionStore = useConnectionStore()
 const credentialsStore = useCredentialsStore()
 const rootStore=useRootStore()
@@ -179,6 +211,11 @@ const handleFeeClick = (event?: Event) => {
   nextTick(() => {
     console.log('NextTick - showFeeModal:', showFeeModal.value)
   })
+}
+
+// 处理My Note点击事件
+const handleMyNoteClick = () => {
+  router.push('/mynote')
 }
 
 

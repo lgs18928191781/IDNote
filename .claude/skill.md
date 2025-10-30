@@ -1,0 +1,1 @@
+1.我希望在vditor上加一个可以点击显示或者隐藏vditor-toolbar的小按钮，hideToolbar为true的情况下默认是隐藏的，hideToolbar为false的时候是显示的

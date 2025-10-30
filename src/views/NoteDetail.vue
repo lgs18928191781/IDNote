@@ -58,9 +58,8 @@
       </header>
 
       <!-- Cover Image -->
-      <div v-if="noteData.coverImg" class="cover-image">
-        <img :src="getCoverUrl(noteData.coverImg)" alt="cover" />
-      </div>
+      <Image v-if="noteData.coverImg" class="cover-image"  :src="getCoverUrl(noteData.coverImg)" />
+    
 
       <!-- Content -->
       <div class="content" v-html="renderedContent"></div>
@@ -185,7 +184,7 @@ const copyNoteId = async () => {
 
 // 返回上一页
 const handleBack = () => {
-  router.back()
+  router.push('/')
 }
 
 // 加载笔记详情
@@ -409,16 +408,19 @@ onMounted(() => {
     margin-bottom: 2rem;
     border-radius: 0.5rem;
     overflow: hidden;
-    max-height: 400px;
+   
+    width: 100%;
+    height: 100%;
     display: flex;
     justify-content: center;
-    background: #f5f5f5;
+    background: hsl(0, 0%, 96%);
+    object-fit: contain;
 
-    img {
-      width: 100%;
-      height: auto;
-      object-fit: cover;
-    }
+    // img {
+    //   width: 100%;
+    //   height: auto;
+    //   object-fit: contain;
+    // }
   }
 
   .content {

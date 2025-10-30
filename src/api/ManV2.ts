@@ -337,7 +337,7 @@ export const getPinListByPath = async (
  */
 export const getInfoByAddress = async (
   params: GetInfoByAddressParams
-): Promise<MetaIdInfoResponse> => {
+): Promise<UserInfo> => {
   const { address } = params
   return manV2Api.get(`/info/address/${address}`)
 }
@@ -347,7 +347,7 @@ export const getInfoByAddress = async (
  */
 export const getInfoByMetaId = async (
   params: GetInfoByMetaIdParams
-): Promise<MetaIdInfoResponse> => {
+): Promise<UserInfo> => {
   const { metaId } = params
   return manV2Api.get(`/info/metaid/${metaId}`)
 }

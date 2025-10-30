@@ -4,18 +4,24 @@
     <header class="header flex items-center justify-center">
       <div class="header-content">
         <div class="title-section">
-          <h1 class="main-title">IDNote: Making Your Story Timeless</h1>
-          <p class="subtitle">Post and Share Your Story On-chain</p>
+          <h1 class="main-title">My Notes</h1>
+          <p class="subtitle">Manage Your Personal Notes</p>
         </div>
-       
+
       </div>
     </header>
 
+    <div class="back-btn">
+      <button @click="handleBackToHome" class="back-button">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Back</span>
+      </button>
+    </div>
+
     <!-- Content -->
     <main class="main-content flex items-center flex-col justify-center">
-      <!-- 未连接提示 -->
-     
-
       <!-- 加载中 -->
       <div v-if="loading" class="loading">
         <p>加载中...</p>
@@ -102,19 +108,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getPinListByPath, type PinInfo, getInfoByAddress } from '@/api/ManV2'
+import { getAddressPinList, type PinInfo } from '@/api/ManV2'
 import { useToast } from '@/components/Toast/useToast'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const { showToast } = useToast()
+const userStore = useUserStore()
 
 const notes = ref<PinInfo[]>([])
 const loading = ref(false)
 const total = ref(0)
 const currentPage = ref(1)
 const pageSize = 20
-// 追踪每个 note 的 userInfo 加载状态
-const userInfoLoadingMap = ref<Map<string, boolean>>(new Map())
 
 // 计算总页数
 const totalPages = computed(() => {
@@ -166,54 +172,36 @@ const formatDate = (timestamp: number): string => {
 }
 
 // 判断某个 note 的 userInfo 是否正在加载
-const isUserInfoLoading = (noteId: string): boolean => {
-  return userInfoLoadingMap.value.get(noteId) === true
+// 由于 MyNote 页面的用户信息是直接从 userStore 设置的，所以始终返回 false
+const isUserInfoLoading = (_noteId: string): boolean => {
+  return false
 }
 
-// 异步加载用户信息
-const loadUserInfo = async (note: PinInfo) => {
-  if (!note.address) return
-
-  try {
-    // 标记该 note 的 userInfo 正在加载
-    userInfoLoadingMap.value.set(note.id, true)
-
-    const userInfo = await getInfoByAddress({ address: note.address })
-
-    // 找到对应的 note 并更新 userInfo
-    const noteIndex = notes.value.findIndex(n => n.id === note.id)
-    if (noteIndex !== -1) {
-      notes.value[noteIndex].userInfo = userInfo
-    }
-  } catch (error) {
-    console.error(`Failed to load user info for note ${note.id}:`, error)
-  } finally {
-    // 标记该 note 的 userInfo 加载完成
-    userInfoLoadingMap.value.set(note.id, false)
-  }
+// 返回首页
+const handleBackToHome = () => {
+  router.push('/')
 }
 
 // 加载笔记列表
 const loadNotes = async (page: number = 1) => {
-  // if (!userStore.isAuthorized) {
-  //   notes.value = []
-  //   total.value = 0
-  //   currentPage.value = 1
-  //   return
-  // }
+  if (!userStore.last?.address) {
+    showToast('Please login first', 'error')
+    return
+  }
 
   loading.value = true
   try {
     const cursor = (page - 1) * pageSize
-    const response = await getPinListByPath({
+    const response = await getAddressPinList({
+      address: userStore.last.address,
       path: '/protocols/simplenote',
       size: pageSize,
       cursor: cursor
     })
 
-     if(!response.list || !response.list.length ){
+    if(!response.list || !response.list.length ){
        showToast('列表数据查询为空', 'error')
-      return
+        return
     }
 
     // 先设置笔记列表，不等待 userInfo
@@ -222,14 +210,18 @@ const loadNotes = async (page: number = 1) => {
     currentPage.value = page
 
     // 异步加载每个笔记的用户信息
-    if(response.list && response.list.length)
-    for (let item of response.list) {
-      loadUserInfo(item)
+   if(response.list && response.list.length){
+     for (let item of response.list) {
+        item.userInfo=userStore.last
     }
+   }
+
+   
 
   } catch (error) {
     showToast('加载笔记失败', 'error')
     console.error('Failed to load notes:', error)
+    
   } finally {
     loading.value = false
   }
@@ -241,8 +233,9 @@ const handlePageChange = (page: number) => {
     return
   }
   loadNotes(page)
+  
   // 滚动到顶部
-  //window.scrollTo({ top: 0, behavior: 'smooth' })
+  // window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 // 获取要显示的页码数组
@@ -281,15 +274,6 @@ const getPageNumbers = () => {
   return pages
 }
 
-// 监听用户登录状态
-// watch(() => userStore.isAuthorized, (newVal) => {
-//   if (newVal) {
-//     loadNotes()
-//   } else {
-//     notes.value = []
-//   }
-// })
-
 onMounted(() => {
   loadNotes()
 })
@@ -303,23 +287,18 @@ onMounted(() => {
   align-items: center;
 
   flex-direction: column;
-  
+
 
   box-sizing: border-box;
 }
 
 .header {
-
-
- 
   width: 100%;
   padding: 3rem 2rem;
 
-
   .header-content {
-    margin: 0 auto;
     display: flex;
-    justify-content: space-between;
+    width: 500px;
     align-items: center;
   }
 
@@ -341,8 +320,45 @@ onMounted(() => {
       margin: 0.25rem 0 0 0;
     }
   }
+}
 
- 
+// 后退按钮样式
+.back-btn {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto 1rem;
+  padding: 0 ;
+  box-sizing: border-box;
+
+  .back-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  
+    
+    color: #303133;
+    
+   
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    font-weight: 500;
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    &:hover {
+      background: #f5f5f5;
+      border-color: #149dd3;
+      color: #1189bd;
+    }
+
+    &:active {
+      transform: translateX(-2px);
+    }
+  }
 }
 
 .main-content {
@@ -350,7 +366,7 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 40px;
-   
+
   box-sizing: border-box;
 }
 
@@ -385,7 +401,7 @@ onMounted(() => {
 .notes-list {
   display: flex;
   flex-direction: column;
- 
+
   gap: 1rem;
   max-width: 500px;
   width: 500px;
@@ -611,14 +627,12 @@ onMounted(() => {
 // Mobile breakpoint
 @media (max-width: 768px) {
   .header {
-
     width: 100%;
 
     .header-content {
       flex-direction: column;
       gap: 1rem;
-      align-items: center;
-      text-align: center;
+      align-items: flex-start;
     }
 
     .title-section {
@@ -632,9 +646,22 @@ onMounted(() => {
     }
   }
 
+  .back-btn {
+    padding: 0 20px;
+
+    .back-button {
+      font-size: 0.75rem;
+      padding: 0.375rem 0.75rem;
+
+      svg {
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+  }
+
   .main-content {
     width: 100%;
-
   }
 
   .note-card {
@@ -695,19 +722,30 @@ onMounted(() => {
 
 // Small mobile breakpoint
 @media (max-width: 480px) {
-  .main-content {
-  
-  padding: 0 10px;
-   
-  box-sizing: border-box;
-}
+  .back-btn {
+    padding: 0 10px;
+    max-width: 95%;
 
+    .back-button {
+      font-size: 0.6875rem;
+      padding: 0.25rem 0.5rem;
+
+      svg {
+        width: 0.875rem;
+        height: 0.875rem;
+      }
+    }
+  }
+
+  .main-content {
+    padding: 0 10px;
+    box-sizing: border-box;
+  }
 
   .notes-list {
-
-  max-width: 95%;
-  width: 95%;
-}
+    max-width: 95%;
+    width: 95%;
+  }
 
   .note-card {
     padding: 0.75rem;

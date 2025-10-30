@@ -117,7 +117,9 @@ import UserAvatar from '@/components/UserAvatar/UserAvatar.vue'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import imageCompression from 'browser-image-compression'
-import { useRootStore } from '@/stores/root'
+import {isAndroid,isIOS, useRootStore } from '@/stores/root'
+
+
 
 const route = useRoute()
 const router = useRouter()
@@ -157,10 +159,14 @@ const canPublish = computed(() => {
   return title.value.trim() !== '' && content.value.trim() !== ''
 })
 
+const hideToolbar=computed(()=>{
+  return isAndroid || isIOS || rootStore.isWebView
+})
+
 // 初始化编辑器
 const initEditor = () => {
   vditor = new Vditor('vditor', {
-    height: 'calc(100vh - 400px)',
+    height: 'calc(100vh - 300px)',
     minHeight: 400,
     placeholder: '这里是一个 Markdown 编辑器，支持标准的 Mark 语法',
     theme: 'classic',
@@ -190,7 +196,7 @@ const initEditor = () => {
       '|',
       'edit-mode',
       'preview',
-      //'fullscreen'
+      'fullscreen'
     ],
     cache: {
       enable: false
@@ -1040,6 +1046,11 @@ onBeforeUnmount(() => {
       border-color: #149dd3;
     }
   }
+}
+
+// vditor 全屏模式 z-index 控制
+:deep(.vditor--fullscreen) {
+  z-index: 999 !important;
 }
 
 @media (max-width: 768px) {

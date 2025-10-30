@@ -38,6 +38,12 @@ const routes: RouteRecordRaw[] = [
     name: 'Draft',
     component: () => import('@/views/Draft.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/mynote',
+    name: 'MyNote',
+    component: () => import('@/views/MyNote.vue'),
+    meta: { requiresAuth: true, keepAlive: true }
   }
 ]
 
