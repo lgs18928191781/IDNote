@@ -165,13 +165,27 @@ const hideToolbar=computed(()=>{
 
 // 初始化编辑器
 const initEditor = () => {
-  vditor = new Vditor('vditor', {
-    height: 'calc(100vh - 300px)',
-    minHeight: 400,
-    placeholder: '这里是一个 Markdown 编辑器，支持标准的 Mark 语法',
-    theme: 'classic',
-    icon: 'material',
-    toolbar: [
+  let toolbar
+  if(hideToolbar.value){
+    toolbar=[
+      'headings',
+      'bold',
+      'italic',
+      'strike',
+      '|',
+      'line',
+      'quote',
+      'code',
+      'inline-code',
+      'link',
+       '|',
+      'upload',
+        '|',
+      'edit-mode',
+      'preview',
+    ]
+  }else{
+    toolbar=[
       'emoji',
       'headings',
       'bold',
@@ -197,7 +211,17 @@ const initEditor = () => {
       'edit-mode',
       'preview',
       'fullscreen'
-    ],
+    ]
+  }
+
+
+  vditor = new Vditor('vditor', {
+    height: 'calc(100vh - 300px)',
+    minHeight: 400,
+    placeholder: '这里是一个 Markdown 编辑器，支持标准的 Mark 语法',
+    theme: 'classic',
+    icon: 'material',
+    toolbar: toolbar,
     cache: {
       enable: false
     },
