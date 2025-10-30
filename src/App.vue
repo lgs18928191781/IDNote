@@ -209,9 +209,10 @@ onMounted(async () => {
 
 
   const checkMetalet =  () => {
+    showToast('进来初始化app方法1','info')
     rootStore.checkWebViewBridge()
     if (window.metaidwallet) {
-      
+       showToast('进来初始化app方法2','info')
       try {
           
         ;(window.metaidwallet as any)?.on('accountsChanged',metaletAccountsChangedHandler)
