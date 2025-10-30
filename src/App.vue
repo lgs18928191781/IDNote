@@ -116,21 +116,23 @@ console.error('Error in metaletAccountsChangedHandler:', error)
 
 
 const metaletNetworkChangedHandler = (network: Network) => {
+
 if (useConnectionStore().last.wallet !== 'metalet') return
 if(rootStore.isWebView) return
+
 handleNetworkChanged(network)
 }
 
-const appLoginSuccessHandler= async (data: any) => {
+      const appLoginSuccessHandler= async (data: any) => {
+      showToast('有没有走调用用户信息','info')
+      try {
 
-try {
-
-if (!userStore.isAuthorized) {
-    showToast('检测到没有用户信息','error')
-await connectMetalet()
+      if (!userStore.isAuthorized) {
+      showToast('检测到没有用户信息','error')
+      await connectMetalet()
 
 
-}
+      }
 
 } catch (error) {
   showToast(error,'error')
