@@ -102,9 +102,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getPinListByPath, type PinInfo, getInfoByAddress } from '@/api/ManV2'
+import { getPinListByPath, type PinInfo } from '@/api/ManV2'
 import { useToast } from '@/components/Toast/useToast'
-
+import {getUserInfoByAddress} from '@/api/man'
 const router = useRouter()
 const { showToast } = useToast()
 
@@ -178,7 +178,7 @@ const loadUserInfo = async (note: PinInfo) => {
     // 标记该 note 的 userInfo 正在加载
     userInfoLoadingMap.value.set(note.id, true)
 
-    const userInfo = await getInfoByAddress({ address: note.address })
+    const userInfo = await getUserInfoByAddress(note.address)
 
     // 找到对应的 note 并更新 userInfo
     const noteIndex = notes.value.findIndex(n => n.id === note.id)

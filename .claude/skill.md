@@ -1,1 +1,1 @@
-1.我希望在vditor上加一个可以点击显示或者隐藏vditor-toolbar的小按钮，hideToolbar为true的情况下默认是隐藏的，hideToolbar为false的时候是显示的
+1.在移动端情况下点击vditor的vditor-toolbar的fullscreen时,全屏模式后再切换回非全屏之后，整个editor-container的尺寸都被压缩了，你可以尝试复现这个情况，并且修复一下

@@ -27,7 +27,7 @@
 
     <!-- Main Content -->
     <main class="main-content">
-      <div class="editor-container" :class="{ 'fullscreen-mode': isFullscreen }">
+      <div class="editor-container">
         <!-- Title Input -->
         <div class="input-section">
           <input
@@ -921,12 +921,9 @@ onBeforeUnmount(() => {
   border-radius: 0.5rem;
   padding: 2rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: height 0.3s ease, margin-top 0.3s ease;
 
-  &.fullscreen-mode {
-    height: 70vh;
-    margin-top: 500px;
-  }
+  // Remove fullscreen-mode styles to prevent container size issues
+  // Vditor handles fullscreen internally with .vditor--fullscreen
 }
 
 .input-section {
