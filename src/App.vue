@@ -200,6 +200,14 @@ onMounted(async () => {
       console.error('Error checking account status:', error)
     }
   }, 5 * 1000)
+
+
+
+    if (!userStore.isAuthorized) {
+      if(rootStore.isWebView){
+         await connectMetalet()
+        }
+      }
   
 
 
