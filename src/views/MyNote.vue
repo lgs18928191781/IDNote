@@ -111,11 +111,12 @@ import { useRouter } from 'vue-router'
 import { getAddressPinList, type PinInfo } from '@/api/ManV2'
 import { useToast } from '@/components/Toast/useToast'
 import { useUserStore } from '@/stores/user'
+import { useRootStore } from '@/stores/root'
 
 const router = useRouter()
 const { showToast } = useToast()
 const userStore = useUserStore()
-
+const rootStore=useRootStore()
 const notes = ref<PinInfo[]>([])
 const loading = ref(false)
 const total = ref(0)
@@ -184,7 +185,7 @@ const handleBackToHome = () => {
 
 // 加载笔记列表
 const loadNotes = async (page: number = 1) => {
-  if (!userStore.last?.address) {
+  if (!userStore.last?.address || !rootStore.isWebView) {
     showToast('Please login first', 'error')
     return
   }
