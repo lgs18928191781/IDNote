@@ -1,10 +1,10 @@
 <template>
 
-  <template v-if="!connectionStore.connected && !isAndroid && !isIOS && !rootStore.isWebView">
+  <template v-if="!connectionStore.connected  && !rootStore.isWebView">
     <a class="main-border border-[#149ddc] bg-[#149dd3] connect-wallet" @click="openConnectionModal">Connect Wallet</a>
   </template>
 
-  <template v-else-if="!credentialsStore.get && !isAndroid && !isIOS && !rootStore.isWebView">
+  <template v-else-if="!credentialsStore.get  && !rootStore.isWebView">
     <a class="main-border border-[#149ddc] bg-[#149dd3] connect-wallet" @click="credentialsStore.login()">Authorize</a>
   </template>
 
