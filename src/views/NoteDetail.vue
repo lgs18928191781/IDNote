@@ -16,16 +16,31 @@
     <!-- Detail Content -->
     <article v-else-if="noteData" class="note-detail">
         <!-- Back Button -->
-    <button @click="handleBack" class="back-button" title="返回上一页">
+   <div class="flex items-center justify-between">
+     <button @click="handleBack" class="back-button" title="返回上一页">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span>Back</span>
     </button>
 
+     <button @click="shareNote" class="share-btn" title="分享笔记">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5.33333C13.1046 5.33333 14 4.43792 14 3.33333C14 2.22876 13.1046 1.33333 12 1.33333C10.8954 1.33333 10 2.22876 10 3.33333C10 4.43792 10.8954 5.33333 12 5.33333Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 10C5.10457 10 6 9.10457 6 8C6 6.89543 5.10457 6 4 6C2.89543 6 2 6.89543 2 8C2 9.10457 2.89543 10 4 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 14.6667C13.1046 14.6667 14 13.7712 14 12.6667C14 11.5621 13.1046 10.6667 12 10.6667C10.8954 10.6667 10 11.5621 10 12.6667C10 13.7712 10.8954 14.6667 12 14.6667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5.72667 9.04L10.28 11.6267" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.2733 4.37333L5.72667 6.96" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+   </div>
+
       <!-- Header -->
       <header class="note-header">
-        <h1 class="title">{{ noteData.title }}</h1>
+        <div class="title-row">
+          <h1 class="title">{{ noteData.title }}</h1>
+          <span v-if="isNoteEncrypted" class="private-tag">Private</span>
+        </div>
         <p v-if="noteData.subtitle" class="subtitle">{{ noteData.subtitle }}</p>
 
         <div class="meta-info">
@@ -44,15 +59,19 @@
               <span class="publish-date">{{ formatDate(note?.timestamp || 0) }}</span>
             </div>
           </div>
-          <div class="note-id">
-            <span class="label">TXID:</span>
-            <span class="value">{{ note?.id.slice(0, 12) }}...</span>
-            <button @click="copyNoteId" class="copy-btn" title="复制完整 TXID">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13.5 5.5H6.5C5.94772 5.5 5.5 5.94772 5.5 6.5V13.5C5.5 14.0523 5.94772 14.5 6.5 14.5H13.5C14.0523 14.5 14.5 14.0523 14.5 13.5V6.5C14.5 5.94772 14.0523 5.5 13.5 5.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M3.5 10.5H2.5C2.23478 10.5 1.98043 10.3946 1.79289 10.2071C1.60536 10.0196 1.5 9.76522 1.5 9.5V2.5C1.5 2.23478 1.60536 1.98043 1.79289 1.79289C1.98043 1.60536 2.23478 1.5 2.5 1.5H9.5C9.76522 1.5 10.0196 1.60536 10.2071 1.79289C10.3946 1.98043 10.5 2.23478 10.5 2.5V3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
+          <div class="note-actions">
+            <div class="note-id">
+              <span class="label">TXID:</span>
+              <span class="value">{{ note?.id.slice(0, 12) }}...</span>
+              <button @click="openNoteLink" class="link-btn" title="在 MVC Scan 查看交易">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 8.66667V12.6667C12 13.0203 11.8595 13.3594 11.6095 13.6095C11.3594 13.8595 11.0203 14 10.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V5.33333C2 4.97971 2.14048 4.64057 2.39052 4.39052C2.64057 4.14048 2.97971 4 3.33333 4H7.33333" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10 2H14V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M6.66667 9.33333L14 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+           
           </div>
         </div>
       </header>
@@ -79,9 +98,15 @@ import { getPinDetail, type PinDetail } from '@/api/ManV2'
 import { useToast } from '@/components/Toast/useToast'
 import { marked } from 'marked'
 import { type UserInfo,getUserInfoByAddress } from "@/api/man";
+import { useCryptoStore } from '@/stores/crypto'
+import { useUserStore } from '@/stores/user'
+import { decryptGCM } from '@/utils/crypto'
+
 const route = useRoute()
 const router = useRouter()
 const { showToast } = useToast()
+const cryptoStore = useCryptoStore()
+const userStore = useUserStore()
 
 const note = ref<PinDetail | null>(null)
 const loading = ref(false)
@@ -95,10 +120,24 @@ interface NoteContent {
   contentType: string
   attachments?: string[]
   tags?: string[]
+  encryption?: string
 }
 
 const noteData = ref<NoteContent | null>(null)
 const noteUserInfo=ref<UserInfo | null>(null)
+
+// 判断笔记是否加密
+const isNoteEncrypted = computed(() => {
+  if (!noteData.value?.encryption) return false
+  return noteData.value.encryption !== '0'
+})
+
+// 判断笔记是否属于当前用户
+const isOwnNote = computed(() => {
+  if (!note.value?.address || !userStore.last?.address) return false
+  return note.value.address === userStore.last.address
+})
+
 // 获取封面图 URL
 const getCoverUrl = (coverImg: string): string => {
   if (coverImg.startsWith('metafile://')) {
@@ -141,6 +180,35 @@ const renderedContent = computed(() => {
   return content
 })
 
+// 解密笔记内容
+const decryptNoteContent = async (encryptedContent: string): Promise<string> => {
+  try {
+    // 判断是否是自己的笔记
+    if (!isOwnNote.value) {
+      // 别人的笔记，无法解密
+      return '此笔记内容已加密'
+    }
+
+    // 获取签名密钥
+    let sigKey = cryptoStore.queryCurrentSigKey
+    if (!sigKey) {
+      // 如果没有签名密钥，先签名
+      sigKey = await cryptoStore.signMessageAndStore()
+    }
+
+    if (!sigKey) {
+      return '无法获取解密密钥'
+    }
+
+    // 解密内容
+    const decryptedContent = await decryptGCM(encryptedContent, sigKey)
+    return decryptedContent
+  } catch (error) {
+    console.error('解密失败:', error)
+    return '解密失败，无法显示内容'
+  }
+}
+
 // 格式化日期
 const formatDate = (timestamp: number): string => {
   const date = new Date(timestamp * 1000)
@@ -154,31 +222,27 @@ const formatDate = (timestamp: number): string => {
   })
 }
 
-// 复制 Note ID
-const copyNoteId = async () => {
+// 打开 MVC Scan 链接
+const openNoteLink = () => {
   if (!note.value?.id) {
-    showToast('暂无可复制的 TXID', 'error')
+    showToast('暂无可查看的 TXID', 'error')
     return
   }
 
+  const txid = note.value.id.slice(0, -2)
+  const url = `https://mvcscan.com/tx/${txid}`
+  window.open(url, '_blank')
+}
+
+// 分享笔记
+const shareNote = async () => {
+  const shareUrl = window.location.href
+
   try {
-    await navigator.clipboard.writeText(note.value.id.slice(0,-2))
-    showToast('TXID 已复制到剪贴板', 'success')
+    await navigator.clipboard.writeText(shareUrl)
+    showToast('链接已复制到剪贴板', 'success')
   } catch (err) {
-    // 如果 clipboard API 不可用，使用备用方案
-    const textArea = document.createElement('textarea')
-    textArea.value = note.value.id
-    textArea.style.position = 'fixed'
-    textArea.style.left = '-999999px'
-    document.body.appendChild(textArea)
-    textArea.select()
-    try {
-      document.execCommand('copy')
-      showToast('TXID 已复制到剪贴板', 'success')
-    } catch (e) {
-      showToast('复制失败，请手动复制', 'error')
-    }
-    document.body.removeChild(textArea)
+    showToast('复制失败，请手动复制链接', 'error')
   }
 }
 
@@ -204,7 +268,14 @@ const loadNoteDetail = async () => {
     if (note.value.contentSummary) {
       try {
         noteData.value = JSON.parse(note.value.contentSummary)
-        noteUserInfo.value=await getUserInfoByAddress(note.value.address)
+        noteUserInfo.value = await getUserInfoByAddress(note.value.address)
+
+        // 检查笔记是否加密
+        if (noteData.value.encryption && noteData.value.encryption !== '0') {
+          // 笔记已加密，需要解密
+          const decryptedContent = await decryptNoteContent(noteData.value.content)
+          noteData.value.content = decryptedContent
+        }
       } catch (e) {
         error.value = '笔记内容格式错误'
       }
@@ -265,6 +336,36 @@ onMounted(() => {
       font-weight: 500;
     }
   }
+
+      .share-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 1rem;
+        
+        border: none;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        font-size: 0.875rem;
+        gap: 0.5rem;
+        transition: all 0.2s;
+
+        &:hover {
+          background: #1189bd;
+         
+        color: #fff;
+     
+       
+        }
+
+        &:active {
+          transform: scale(0.98);
+        }
+
+        svg {
+          display: block;
+        }
+      }
 }
 
 .loading,
@@ -308,13 +409,35 @@ onMounted(() => {
 
   .note-header {
     margin-bottom: 2rem;
+    margin-top: 1rem;
+    .title-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
 
     .title {
       font-size: 2rem;
       font-weight: 600;
-      margin: 0 0 0.5rem 0;
+      margin: 0;
       color: #333;
       line-height: 1.4;
+      flex: 1;
+    }
+
+    .private-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.375rem 0.75rem;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 0.375rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 0.25rem;
     }
 
     .subtitle {
@@ -360,6 +483,12 @@ onMounted(() => {
         }
       }
 
+      .note-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
       .note-id {
         display: flex;
         align-items: center;
@@ -375,7 +504,7 @@ onMounted(() => {
           font-family: monospace;
         }
 
-        .copy-btn {
+        .link-btn {
           display: flex;
           align-items: center;
           justify-content: center;
@@ -401,6 +530,7 @@ onMounted(() => {
           }
         }
       }
+
     }
   }
 

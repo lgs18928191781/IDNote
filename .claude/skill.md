@@ -1,1 +1,1 @@
-1.在移动端情况下点击vditor的vditor-toolbar的fullscreen时,全屏模式后再切换回非全屏之后，整个editor-container的尺寸都被压缩了，你可以尝试复现这个情况，并且修复一下
+1.shareNote的逻辑改成复制当前页面路由即可

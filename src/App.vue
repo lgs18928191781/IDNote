@@ -50,6 +50,11 @@ import {completeReload, sleep} from '@/utils/util'
 import { useConnectionModal } from './hooks/use-connection-modal'
 import { useRouter } from 'vue-router'
 
+
+
+
+
+
 const router = useRouter()
 const accountInterval=ref()
 const rootStore=useRootStore()
@@ -178,7 +183,9 @@ async function connectMetalet() {
 
 
 onMounted(async () => {
-   
+
+
+
   let retryCount = 0
   let timeoutId: NodeJS.Timeout | undefined
   //document.addEventListener('visibilitychange', handleVisibilityChange);

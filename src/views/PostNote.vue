@@ -52,6 +52,33 @@
           />
         </div> -->
 
+        <!-- Privacy Setting -->
+        <div class="input-section">
+          <div class="privacy-section">
+            <label class="privacy-label">笔记可见性</label>
+            <div class="privacy-options">
+              <label class="privacy-option">
+                <input
+                  type="radio"
+                  v-model="privacySetting"
+                  value="public"
+                  @change="handlePrivacyChange"
+                />
+                <span class="option-label">公开</span>
+              </label>
+              <label class="privacy-option">
+                <input
+                  type="radio"
+                  v-model="privacySetting"
+                  value="private"
+                  @change="handlePrivacyChange"
+                />
+                <span class="option-label">私密</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
         <!-- Cover Image -->
         <div class="input-section">
           <div class="cover-section">
@@ -118,6 +145,8 @@ import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import imageCompression from 'browser-image-compression'
 import {isAndroid,isIOS, useRootStore } from '@/stores/root'
+import { useCryptoStore } from '@/stores/crypto'
+import { encryptGCM } from '@/utils/crypto'
 
 
 
@@ -127,6 +156,7 @@ const userStore = useUserStore()
 const { showToast } = useToast()
 const { createSimpleNote, createFile } = useCreateProtocols()
 const rootStore=useRootStore()
+const cryptoStore = useCryptoStore()
 // 编辑器实例
 let vditor: Vditor | null = null
 
@@ -137,6 +167,7 @@ const coverImg = ref('')
 const coverFile = ref<Blob | null>(null)
 const tagsInput = ref('')
 const content = ref('')
+const privacySetting = ref('public')
 
 // 状态
 const publishing = ref(false)
@@ -346,7 +377,7 @@ const compressImage = async (file: File): Promise<Blob> => {
     const options = {
       maxSizeMB: 1,
       maxWidthOrHeight: 1920,
-      useWebWorker: true
+      useWebWorker: false // Disabled to avoid CSP issues with blob URLs
     }
     return await imageCompression(file, options)
   } catch (error) {
@@ -544,6 +575,11 @@ const handleContentChange = () => {
   hasUnsavedChanges.value = true
 }
 
+// 隐私设置变化处理
+const handlePrivacyChange = () => {
+  handleContentChange()
+}
+
 // 自动保存草稿
 const autoSaveDraft = async () => {
   
@@ -700,20 +736,51 @@ const handlePublish = async () => {
       }
     }
 
-    // 4. 构建笔记数据
+    // 4. 根据隐私设置确定加密方式
+    let finalContent = processedContent
+    let encryption = '0'
+
+    if (privacySetting.value === 'private') {
+      encryption = 'ase'
+
+      // 获取签名密钥
+      let sigKey = cryptoStore.queryCurrentSigKey
+      
+      if (!sigKey) {
+        // 如果没有签名密钥，先签名
+      sigKey =  await cryptoStore.signMessageAndStore()
+        
+      }
+
+      if (sigKey) {
+        try {
+          // 加密内容
+          finalContent = await encryptGCM(processedContent, sigKey)
+        } catch (error) {
+          console.error('加密失败:', error)
+          showToast('加密失败，将发布为公开笔记', 'warning')
+          encryption = '0'
+        }
+      } else {
+        showToast('无法获取签名密钥，将发布为公开笔记', 'warning')
+        encryption = '0'
+      }
+    }
+
+    // 5. 构建笔记数据
     const noteBody = {
       title: title.value,
       subtitle: subtitle.value,
       coverImg: finalCoverImg,
       contentType: 'text/markdown',
-      content: processedContent,
-      encryption: '0',
+      content: finalContent,
+      encryption: encryption,
       createTime: Date.now(),
       tags: parseTags(),
       attachments: attachmentPinIds
     }
 
-    // 5. 发布笔记
+    // 6. 发布笔记
     const metaidData = {
       path: '/protocols/simplenote',
       body: noteBody,
@@ -1043,6 +1110,42 @@ onBeforeUnmount(() => {
     border: 1px solid #e5e5e5;
     border-radius: 0.375rem;
     overflow: hidden;
+  }
+}
+
+.privacy-section {
+  .privacy-label {
+    display: block;
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 0.75rem;
+  }
+
+  .privacy-options {
+    display: flex;
+    gap: 1.5rem;
+
+    .privacy-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+
+      input[type="radio"] {
+        margin: 0;
+        cursor: pointer;
+      }
+
+      .option-label {
+        font-size: 0.95rem;
+        color: #333;
+        user-select: none;
+      }
+
+      &:hover .option-label {
+        color: #149dd3;
+      }
+    }
   }
 }
 

@@ -36,7 +36,10 @@
           class="note-card"
         >
           <div class="note-header">
-            <h3 class="note-title">{{ getNoteTitle(note) }}</h3>
+            <div class="title-row">
+              <h3 class="note-title">{{ getNoteTitle(note) }}</h3>
+              <span v-if="getNoteIsEncrypt(note)" class="private-tag">Private</span>
+            </div>
             <Image v-if="getNoteCover(note)" class="note-cover"  :src="getNoteCover(note)" />
           </div>
           <div class="note-footer">
@@ -157,6 +160,22 @@ const getNoteCover = (note: PinInfo): string => {
     return ''
   } catch (error) {
     return ''
+  }
+}
+
+// 判断笔记是否加密
+const getNoteIsEncrypt = (note: PinInfo): boolean => {
+  try {
+    if (note.contentSummary) {
+      const data = JSON.parse(note.contentSummary)
+      if (data.encryption && data.encryption !== "0") {
+        return true
+      }
+      return false
+    }
+    return false
+  } catch (error) {
+    return false
   }
 }
 
@@ -341,7 +360,7 @@ onMounted(() => {
     
    
     cursor: pointer;
-    font-size: 0.875rem;
+    font-size: 1rem;
     transition: all 0.2s;
     font-weight: 500;
 
@@ -428,6 +447,13 @@ onMounted(() => {
     gap: 1rem;
     margin-bottom: 1rem;
 
+    .title-row {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
     .note-title {
       flex: 1;
       font-size: 1.125rem;
@@ -441,6 +467,19 @@ onMounted(() => {
       -webkit-line-clamp: 2;
       line-clamp: 2;
       -webkit-box-orient: vertical;
+    }
+
+    .private-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: 0.25rem;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .note-cover {
@@ -651,7 +690,7 @@ onMounted(() => {
     padding: 0 20px;
 
     .back-button {
-      font-size: 0.75rem;
+     
       padding: 0.375rem 0.75rem;
 
       svg {
@@ -728,7 +767,7 @@ onMounted(() => {
     max-width: 95%;
 
     .back-button {
-      font-size: 0.6875rem;
+      
       padding: 0.25rem 0.5rem;
 
       svg {
