@@ -185,6 +185,7 @@ async function connectMetalet() {
 onMounted(async () => {
 
    let sigKey = cryptoStore.queryCurrentSigKey
+   showToast(userStore.last.address,'info')
     showToast(sigKey,'info')
   let retryCount = 0
   let timeoutId: NodeJS.Timeout | undefined
