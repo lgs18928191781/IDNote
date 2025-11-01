@@ -32,7 +32,7 @@ export const useCryptoStore = defineStore('crypto', {
         if (!signKeysData) {
           return null
         }
-
+        
         const signKeys = JSON.parse(signKeysData) as Array<{address: string, sigKey: string}>
         const signData = signKeys.find(item => item.address === userStore.last.address)
         return signData ? signData.sigKey : null

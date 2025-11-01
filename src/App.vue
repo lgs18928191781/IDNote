@@ -49,7 +49,7 @@ import { type Network, useNetworkStore } from '@/stores/network'
 import {completeReload, sleep} from '@/utils/util'
 import { useConnectionModal } from './hooks/use-connection-modal'
 import { useRouter } from 'vue-router'
-
+import { useCryptoStore } from '@/stores/crypto'
 
 
 
@@ -68,7 +68,7 @@ const RETRY_INTERVAL = 100  // 重试间隔（毫秒）
 const networkStore = useNetworkStore()
 const {  closeConnectionModal } =useConnectionModal()
 
-
+const cryptoStore = useCryptoStore()
 
 
 
@@ -184,8 +184,8 @@ async function connectMetalet() {
 
 onMounted(async () => {
 
-
-
+   let sigKey = cryptoStore.queryCurrentSigKey
+    showToast(sigKey,'info')
   let retryCount = 0
   let timeoutId: NodeJS.Timeout | undefined
   //document.addEventListener('visibilitychange', handleVisibilityChange);

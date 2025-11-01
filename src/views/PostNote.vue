@@ -709,7 +709,9 @@ const handlePublish = async () => {
     // 2. 上传封面图片（如果有）
     let finalCoverImg = coverImg.value
     if (coverFile.value) {
+      
       const coverPinId = await uploadFile(coverFile.value)
+      
       finalCoverImg = `metafile://${coverPinId}`
     }
 

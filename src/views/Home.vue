@@ -143,6 +143,7 @@ const getNoteCover = (note: PinInfo): string => {
   try {
     if (note.contentSummary) {
       const data = JSON.parse(note.contentSummary)
+      
       if (data.coverImg && data.coverImg.startsWith('metafile://')) {
         // 处理 metafile:// 链接
         const pinId = data.coverImg.replace('metafile://', '')

@@ -183,6 +183,7 @@ const renderedContent = computed(() => {
 // 解密笔记内容
 const decryptNoteContent = async (encryptedContent: string): Promise<string> => {
   try {
+    
     // 判断是否是自己的笔记
     if (!isOwnNote.value) {
       // 别人的笔记，无法解密
